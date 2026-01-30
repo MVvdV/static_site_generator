@@ -3,6 +3,11 @@ import re
 from textnode import TextNode, TextType
 
 
+def markdown_to_blocks(markdown):
+    blocks = list(filter(None, map(str.strip, markdown.split("\n\n"))))
+    return blocks
+
+
 def extract_markdown_images(text):
     return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 

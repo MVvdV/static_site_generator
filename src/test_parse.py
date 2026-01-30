@@ -1,13 +1,67 @@
 import unittest
-from textnode import TextNode, TextType
+
 from parse import (
-    split_nodes_delimiter,
+    markdown_to_blocks,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
     text_to_textnodes,
 )
+from textnode import TextNode, TextType
+
+
+class MarkdownToBlocks(unittest.TestCase):
+    def test_markdown(self):
+        markdown = """
+        # This is a heading
+
+        This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
+
+
+
+
+
+        - This is the first list item in a list block
+        - This is a list item
+        - This is another list item
+        """
+        blocks = markdown_to_blocks(markdown)
+        self.assertEqual(
+            blocks,
+            [
+                "# This is a heading",
+                "This is a paragraph of text. It has some **bold** and _italic_ words inside of it.",
+                "- This is the first list item in a list block\n        - This is a list item\n        - This is another list item",
+            ],
+        )
+
+
+class ExtractMarkdownImages(unittest.TestCase):
+    def test_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        images = extract_markdown_images(text)
+        self.assertEqual(
+            images,
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+        )
+
+
+class ExtractMarkdownlinks(unittest.TestCase):
+    def test_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        links = extract_markdown_links(text)
+        self.assertEqual(
+            links,
+            [
+                ("to boot dev", "https://www.boot.dev"),
+                ("to youtube", "https://www.youtube.com/@bootdotdev"),
+            ],
+        )
 
 
 class SplitNodesDelimiter(unittest.TestCase):
@@ -62,32 +116,6 @@ class SplitNodesDelimiter(unittest.TestCase):
                 TextNode(" and ", TextType.TEXT),
                 TextNode("code", TextType.CODE),
                 TextNode(" words", TextType.TEXT),
-            ],
-        )
-
-
-class ExtractMarkdownImages(unittest.TestCase):
-    def test_images(self):
-        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
-        images = extract_markdown_images(text)
-        self.assertEqual(
-            images,
-            [
-                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
-                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
-            ],
-        )
-
-
-class ExtractMarkdownlinks(unittest.TestCase):
-    def test_links(self):
-        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-        links = extract_markdown_links(text)
-        self.assertEqual(
-            links,
-            [
-                ("to boot dev", "https://www.boot.dev"),
-                ("to youtube", "https://www.youtube.com/@bootdotdev"),
             ],
         )
 
