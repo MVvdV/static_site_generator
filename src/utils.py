@@ -108,3 +108,8 @@ def text_to_textnodes(text):
     nodes_code = split_nodes_delimiter(nodes_italic, "`", TextType.CODE)
 
     return nodes_code
+
+
+def markdown_to_blocks(markdown):
+    blocks = list(filter(None, map(str.strip, markdown.split("\n\n"))))
+    return blocks
