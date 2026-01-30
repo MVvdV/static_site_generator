@@ -1,9 +1,11 @@
 import unittest
 
+from blocktype import BlockType
 from parse import (
-    markdown_to_blocks,
+    block_to_block_type,
     extract_markdown_images,
     extract_markdown_links,
+    markdown_to_blocks,
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
@@ -36,6 +38,26 @@ class MarkdownToBlocks(unittest.TestCase):
                 "- This is the first list item in a list block\n        - This is a list item\n        - This is another list item",
             ],
         )
+
+
+class BlockToBlockType(unittest.TestCase):
+    def test_block_type(self):
+        blocks = [
+            "# This is a heading",
+            "###### This is a sub-heading",
+            "```\nThis is a\nMultiline\ncode block\n```",
+            "- This is the first list item in a list block\n        - This is a list item\n        - This is another list item",
+            "* This is the first list item in a list block\n        * This is a list item\n        * This is another list item",
+            "1. This is the first list item in a list block\n        2. This is a list item\n        3. This is another list item",
+            "This is a paragraph of text. It has some **bold** and _italic_ words inside of it.",
+        ]
+        self.assertEqual(block_to_block_type(blocks[0]), BlockType.HEADING)
+        self.assertEqual(block_to_block_type(blocks[1]), BlockType.HEADING)
+        self.assertEqual(block_to_block_type(blocks[2]), BlockType.CODE)
+        self.assertEqual(block_to_block_type(blocks[3]), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type(blocks[4]), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type(blocks[5]), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type(blocks[6]), BlockType.PARAGRAPH)
 
 
 class ExtractMarkdownImages(unittest.TestCase):
@@ -216,6 +238,28 @@ class TextToTextnodes(unittest.TestCase):
                 TextNode("link", TextType.LINK, "https://boot.dev"),
             ],
         )
+
+
+class TestBlockToBlockType(unittest.TestCase):
+    def test_block_to_block_type(self):
+        block = "# heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+        block = "### heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+        block = "> quote\n> more quote"
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+        block = "* list\n* items"
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
+        block = "1. first\n2. second"
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
+        block = "this is a paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_invalid_ol(self):
+        block = "1. first\n3. second"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
 
 if __name__ == "__main__":

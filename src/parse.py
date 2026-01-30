@@ -1,11 +1,46 @@
 import re
 
+from blocktype import BlockType
 from textnode import TextNode, TextType
 
 
 def markdown_to_blocks(markdown):
     blocks = list(filter(None, map(str.strip, markdown.split("\n\n"))))
     return blocks
+
+
+def block_to_block_type(block):
+    lines = block.split("\n")
+
+    # Heading
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return BlockType.HEADING
+
+    # Code
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].endswith("```"):
+        return BlockType.CODE
+
+    # Quote
+    if all(line.lstrip().startswith(">") for line in lines):
+        return BlockType.QUOTE
+
+    # Unordered List
+    if all(
+        line.lstrip().startswith("- ") or line.lstrip().startswith("* ")
+        for line in lines
+    ):
+        return BlockType.UNORDERED_LIST
+
+    # Ordered List
+    is_ordered = True
+    for i, line in enumerate(lines, start=1):
+        if not line.lstrip().startswith(f"{i}. "):
+            is_ordered = False
+            break
+    if is_ordered:
+        return BlockType.ORDERED_LIST
+
+    return BlockType.PARAGRAPH
 
 
 def extract_markdown_images(text):
