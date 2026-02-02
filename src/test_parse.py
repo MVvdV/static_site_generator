@@ -5,6 +5,7 @@ from parse import (
     block_to_block_type,
     extract_markdown_images,
     extract_markdown_links,
+    extract_title,
     markdown_to_blocks,
     split_nodes_delimiter,
     split_nodes_image,
@@ -260,6 +261,30 @@ class TestBlockToBlockType(unittest.TestCase):
     def test_block_to_block_type_invalid_ol(self):
         block = "1. first\n3. second"
         self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+
+
+class ExtractTitle(unittest.TestCase):
+    def test_title(self):
+        markdown = """
+        # This is a heading
+
+        This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
+
+
+
+
+
+        - This is the first list item in a list block
+        - This is a list item
+        - This is another list item
+        """
+        title = extract_title(markdown)
+        self.assertEqual(title, "This is a heading")
+
+    def test_exeption(self):
+        markdown = "## This is a sub-heading"
+        with self.assertRaises(Exception):
+            extract_title(markdown)
 
 
 if __name__ == "__main__":

@@ -43,6 +43,14 @@ def block_to_block_type(block):
     return BlockType.PARAGRAPH
 
 
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+    if blocks[0].startswith("# "):
+        return blocks[0][2:].strip()
+    else:
+        raise Exception("Could not extract Title, no h1 (#) found.")
+
+
 def extract_markdown_images(text):
     return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 
